@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Art</title>
+    <link rel="stylesheet" href="main.css">
+    
+</head>
+
+<body>
+
+    <!-- svg 정의 -->
+    <!-- <svg width="100%" height="100%" style="position:absolute;">
+        <defs>
+        <mask id="trapezoidMask" maskUnits="objectBoundingBox">
+            전체 영역을 흰색으로 채움 (흰색 = 오버레이 유지) -->
+            <!-- <rect x="0" y="0" width="100%" height="100%" fill="white" /> -->
+            <!-- 검정색 영역: 이 부분은 투명하게 처리되어 배경이 보임 -->
+            <!-- <polygon fill="black" points="0.46 0, 0.80 0, 0.85 1, 0.18 1" />
+        </mask>
+        </defs>
+
+        <rect x="0" y="0" width="100%" height="100%" fill="black" mask="url(#trapezoidMask)" />
+    </svg> --> 
+
+    <div class="overlay"></div>
+    <div class="trapezoid"></div>
+    <div class="container">
+        <div class="col c-1">
+            <div class="item"><img src="./mainImg/salome.jpg" alt="" /></div>
+            <div class="item"><img src="./mainImg/caravajo.jpg" alt="" /></div>
+            <div class="item"><img src="./mainImg/adam.jpg" alt="" /></div>
+            <div class="item"><img src="./mainImg/saturno.jpg" alt="" /></div>
+            <div class="item"><img src="./mainImg/icarus.jpg" alt="" /></div>
+        </div>
+        <div class="col c-2">
+            <div class="item"><img src="./mainImg/caravajo.jpg" alt="" /></div>
+            <div class="item"><img src="./mainImg/salome.jpg" alt="" /></div>
+            <div class="item"><img src="./mainImg/saturno.jpg" alt="" /></div>
+            <div class="item"><img src="./mainImg/icarus.jpg" alt="" /></div>
+            <div class="item"><img src="./mainImg/adam.jpg" alt="" /></div>
+        </div>
+        <div class="col c-3">
+            <div class="item"><img src="./mainImg/icarus.jpg" alt="" /></div>
+            <div class="item"><img src="./mainImg/salome.jpg" alt="" /></div>
+            <div class="item"><img src="./mainImg/caravaggio.jpg" alt="" /></div>
+            <div class="item"><img src="./mainImg/adam.jpg" alt="" /></div>
+            <div class="item"><img src="./mainImg/saturno.jpg" alt="" /></div>
+        </div>
+        <div class="col c-4">
+            <div class="item"><img src="./mainImg/salome.jpg" alt="" /></div>
+            <div class="item"><img src="./mainImg/adam.jpg" alt="" /></div>
+            <div class="item"><img src="./mainImg/icarus.jpg" alt="" /></div>
+            <div class="item"><img src="./mainImg/saturno.jpg" alt="" /></div>
+            <div class="item"><img src="./mainImg/caravajo.jpg" alt="" /></div>
+        </div>
+        <div class="col c-5">
+            <div class="item"><img src="./mainImg/salome.jpg" alt="" /></div>
+            <div class="item"><img src="./mainImg/saturno.jpg" alt="" /></div>
+            <div class="item"><img src="./mainImg/caravajo.jpg" alt="" /></div>
+            <div class="item"><img src="./mainImg/adam.jpg" alt="" /></div>
+            <div class="item"><img src="./mainImg/icarus.jpg" alt="" /></div>
+        </div>
+    </div>
+    <div class="content">
+        <div class="hero">
+            <div class="title">
+                <p>The Regeneration Site</p>
+            </div>
+        </div>
+    </div>  
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script>
+
+        let tl = gsap.timeline({ delay: 0 });
+
+        tl.to(".col", {
+            top: 0,
+            duration: 3,
+            ease: "power4.inOut"
+        })
+
+        tl.to(".c-1 .item", {
+            top: 0,
+            stagger: 0.25,
+            duration: 3,
+            ease: "power4.inOut"
+        }, "-=2");
+
+        tl.to(".c-2 .item", {
+            top: 0,
+            stagger: -0.25,
+            duration: 3,
+            ease: "power4.inOut"
+        }, "-=4");
+
+        tl.to(".c-3 .item", {
+            top: 0,
+            stagger: 0.25,
+            duration: 3,
+            ease: "power4.inOut"
+        }, "-=4");
+
+        tl.to(".c-4 .item", {
+            top: 0,
+            stagger: -0.25,
+            duration: 3,
+            ease: "power4.inOut"
+        }, "-=4");
+
+        tl.to(".c-5 .item", {
+            top: 0,
+            stagger: 0.25,
+            duration: 3,
+            ease: "power4.inOut"
+        }, "-=4");
+
+        tl.to(".container", {
+            scale: 5,
+            duration: 4,
+            ease: "power4.inOut"
+        }, "-=2");
+
+        tl.to(".title p", {
+            top: 0,
+            stagger: 0.075,
+            duration: 1,
+            ease: "power3.out"
+        }, "-=1.5")
+
+        tl.to(".overlay", {
+            duration: 3,
+            ease: "power3.out",
+            delay: 0.7,
+            opacity: 1
+        });
+
+        tl.to(".trapezoid", {
+            x: "-=1480",
+             duration: 5,
+             ease: "sine.inOut",
+             repeat: -1,
+             yoyo: true,
+             opacity: 1
+        });
+        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>미술 작품 퀴즈</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Arial', sans-serif;
+      overflow: hidden;
+    }
+    
+    .background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('/api/placeholder/800/600');
+      background-size: cover;
+      background-position: center;
+      filter: blur(8px);
+      z-index: -1;
+    }
+    
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      position: relative;
+      padding: 20px;
+    }
+    
+    .content-wrapper {
+      position: relative;
+      max-width: 100%;
+    }
+    
+    .image-container {
+      position: relative;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      overflow: hidden;
+      width: 800px;
+      max-width: 90vw;
+      height: auto;
+    }
+    
+    .artwork {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    
+    .hotspot {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      z-index: 10;
+      transform: translate(-50%, -50%);
+    }
+    
+    .hotspot::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% {
+        transform: scale(0.5);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(3);
+        opacity: 0;
+      }
+    }
+
+    @keyframes sparkle {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 1; }
+    }
+    
+    .quiz-container {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+      width: 350px;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+      transform: translateX(100%);
+      transition: transform 0.5s ease;
+      z-index: 20;
+      overflow-y: auto;
+      border-radius: 0 8px 8px 0;
+    }
+    
+    .quiz-content {
+      padding: 20px;
+    }
+    
+    .quiz-container.active {
+      transform: translateX(0);
+    }
+    
+    .zoom-detail {
+      margin-bottom: 15px;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      width: 100%;
+      height: 180px;
+      display: none;
+      border: 2px solid #e0e0e0;
+    }
+    
+    .zoom-detail.active {
+      display: block;
+    }
+    
+    .zoom-detail img {
+      width: 300%;
+      max-width: none;
+      position: absolute;
+    }
+    
+    .question {
+      margin-bottom: 15px;
+      font-weight: bold;
+      color: #333;
+      font-size: 18px;
+    }
+    
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .option {
+      padding: 12px 15px;
+      background: #f0f0f0;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-size: 16px;
+    }
+    
+    .option:hover {
+      background: #e0e0e0;
+    }
+    
+    .option.selected {
+      background: #4CAF50;
+      color: white;
+    }
+    
+    .option.incorrect {
+      background: #F44336;
+      color: white;
+    }
+    
+    .result {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 5px;
+      text-align: center;
+      display: none;
+      font-size: 16px;
+    }
+    
+    .result.correct {
+      background: #E8F5E9;
+      color: #2E7D32;
+    }
+    
+    .result.wrong {
+      background: #FFEBEE;
+      color: #C62828;
+    }
+    
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
+      z-index: 30;
+    }
+    
+    .close-btn:hover {
+      color: #333;
+    }
+    
+    /* 확대 애니메이션 */
+    @keyframes zoomEffect {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+    
+    .zoom-animate {
+      animation: zoomEffect 0.5s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="background"></div>
+  <div class="container">
+    <div class="content-wrapper">
+      <div class="image-container" id="imageContainer">
+        <img src="/mainImg/adam.jpg" class="artwork" id="artwork">
+        <!-- 반짝이는 불빛(핫스팟) -->
+        <div class="hotspot" style="top: 25%; left: 30%;" data-id="1" data-x="30" data-y="25"></div>
+        <div class="hotspot" style="top: 40%; left: 65%;" data-id="2" data-x="65" data-y="40"></div>
+        <div class="hotspot" style="top: 70%; left: 25%;" data-id="3" data-x="25" data-y="70"></div>
+        <div class="hotspot" style="top: 60%; left: 75%;" data-id="4" data-x="75" data-y="60"></div>
+        <div class="hotspot" style="top: 15%; left: 70%;" data-id="5" data-x="70" data-y="15"></div>
+      </div>
+      
+      <div class="quiz-container" id="quizContainer">
+        <button class="close-btn">&times;</button>
+        <div class="quiz-content">
+          <div class="zoom-detail" id="zoomDetail">
+            <img src="/api/placeholder/800/600" alt="확대된 부분" id="zoomImg">
+          </div>
+          
+          <div class="question" id="question"></div>
+          <div class="options" id="options"></div>
+          <div class="result" id="result"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 퀴즈 데이터
+    const quizData = [
+      {
+        id: 1,
+        question: "이 그림에서 묘사된 인물의 특징은 무엇인가요?",
+        options: [
+          "날개가 있다",
+          "수염이 있다",
+          "왕관을 쓰고 있다",
+          "갑옷을 입고 있다"
+        ],
+        correctAnswer: 0
+      },
+      {
+        id: 2,
+        question: "이 그림의 배경에 보이는 것은?",
+        options: [
+          "산맥",
+          "도시 풍경",
+          "바다와 하늘",
+          "숲"
+        ],
+        correctAnswer: 2
+      },
+      {
+        id: 3,
+        question: "이 작품이 속할 것으로 추정되는 미술 사조는?",
+        options: [
+          "입체주의",
+          "표현주의",
+          "고전주의",
+          "낭만주의 또는 신고전주의"
+        ],
+        correctAnswer: 3
+      },
+      {
+        id: 4,
+        question: "인물의 포즈가 나타내는 감정은?",
+        options: [
+          "분노",
+          "기쁨",
+          "명상 또는 우울",
+          "공포"
+        ],
+        correctAnswer: 2
+      },
+      {
+        id: 5,
+        question: "이 인물의 머리카락 색깔은?",
+        options: [
+          "검정색",
+          "금발",
+          "붉은 갈색",
+          "흰색"
+        ],
+        correctAnswer: 2
+      }
+    ];
+
+    // 핫스팟과 퀴즈 상호작용
+    const hotspots = document.querySelectorAll('.hotspot');
+    const quizContainer = document.getElementById('quizContainer');
+    const questionEl = document.getElementById('question');
+    const optionsEl = document.getElementById('options');
+    const resultEl = document.getElementById('result');
+    const closeBtn = document.querySelector('.close-btn');
+    const imageContainer = document.getElementById('imageContainer');
+    const zoomDetail = document.getElementById('zoomDetail');
+    const zoomImg = document.getElementById('zoomImg');
+    const artwork = document.getElementById('artwork');
+    
+    let currentQuiz = null;
+    let activeHotspot = null;
+
+    hotspots.forEach(hotspot => {
+      // 각 핫스팟에 반짝이는 애니메이션 추가
+      hotspot.style.animation = `sparkle ${1 + Math.random() * 2}s infinite`;
+      
+      hotspot.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const quizId = parseInt(hotspot.getAttribute('data-id'));
+        const quiz = quizData.find(q => q.id === quizId);
+        
+        // 확대 위치 설정
+        const x = parseInt(hotspot.getAttribute('data-x'));
+        const y = parseInt(hotspot.getAttribute('data-y'));
+        
+        // 이전에 활성화된 핫스팟이 있으면 스타일 초기화
+        if (activeHotspot) {
+          activeHotspot.style.zIndex = "10";
+        }
+        
+        // 현재 핫스팟을 활성화
+        activeHotspot = hotspot;
+        hotspot.style.zIndex = "30";
+        
+        // 클릭한 지점 주변에 확대 효과 추가
+        artwork.classList.add('zoom-animate');
+        setTimeout(() => {
+          artwork.classList.remove('zoom-animate');
+        }, 500);
+        
+        if (quiz) {
+          showQuiz(quiz, x, y);
+        }
+      });
+    });
+
+    closeBtn.addEventListener('click', () => {
+      quizContainer.classList.remove('active');
+      resultEl.style.display = 'none';
+      zoomDetail.classList.remove('active');
+      currentQuiz = null;
+      
+      // 활성화된 핫스팟 초기화
+      if (activeHotspot) {
+        activeHotspot.style.zIndex = "10";
+        activeHotspot = null;
+      }
+    });
+
+    function showQuiz(quiz, x, y) {
+      currentQuiz = quiz;
+      
+      // 확대된 이미지 설정
+      zoomImg.style.transform = `translate(-${x}%, -${y}%)`;
+      zoomDetail.classList.add('active');
+      
+      // 질문 설정
+      questionEl.textContent = quiz.question;
+      
+      // 옵션 설정
+      optionsEl.innerHTML = '';
+      quiz.options.forEach((option, index) => {
+        const optionEl = document.createElement('div');
+        optionEl.classList.add('option');
+        optionEl.textContent = option;
+        optionEl.dataset.index = index;
+        
+        optionEl.addEventListener('click', () => {
+          // 이전에 선택된 옵션의 클래스 제거
+          document.querySelectorAll('.option').forEach(opt => {
+            opt.classList.remove('selected', 'incorrect');
+          });
+          
+          // 현재 선택한 옵션에 클래스 추가
+          const selectedIndex = parseInt(optionEl.dataset.index);
+          
+          if (selectedIndex === quiz.correctAnswer) {
+            optionEl.classList.add('selected');
+            resultEl.textContent = '정답입니다!';
+            resultEl.className = 'result correct';
+          } else {
+            optionEl.classList.add('incorrect');
+            document.querySelectorAll('.option')[quiz.correctAnswer].classList.add('selected');
+            resultEl.textContent = '틀렸습니다. 다시 시도해보세요.';
+            resultEl.className = 'result wrong';
+          }
+          
+          resultEl.style.display = 'block';
+        });
+        
+        optionsEl.appendChild(optionEl);
+      });
+      
+      // 결과 초기화
+      resultEl.style.display = 'none';
+      
+      // 퀴즈 컨테이너 표시
+      quizContainer.classList.add('active');
+    }
+  </script>
+</body>
+</html>

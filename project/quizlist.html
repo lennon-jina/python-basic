@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slide Transition Image with GSAP</title>
+  <link rel="stylesheet" href="quizlist.css">
+  <!-- GSAP CDN 추가 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+</head>
+<body>
+  <div class="list">
+    <!-- 이미지 래퍼 -->
+    <div class="image-wrapper">
+      <!-- 메인 이미지 영역 -->
+      <div class="image-container">
+        <img id="display-image"
+             src="https://vold-independent.s3.ap-southeast-1.amazonaws.com/images/innovation/points/486b710a-9122-49f6-bd2f-c68c0a2c1e77/raw/point-1jpg.jpeg"
+             alt="Display Image">
+      </div>
+    </div>
+  
+    <!-- 버튼 리스트 (각 항목에 data-image 속성과 data-index 부여) -->
+    <div class="items">
+      <div class="button-text" data-image="https://vold-independent.s3.ap-southeast-1.amazonaws.com/images/innovation/points/486b710a-9122-49f6-bd2f-c68c0a2c1e77/raw/point-1jpg.jpeg">
+        <div class="text-wrapper">
+          <p class="font-subheading4">Pure natural material</p>
+          <span class="number font-body3">01</span>
+        </div>
+      </div>
+      <div class="button-text" data-image="https://vold-independent.s3.ap-southeast-1.amazonaws.com/images/innovation/points/be4633af-c679-4af7-b038-9fb8d12b9c23/raw/point-2jpg.jpeg">
+        <div class="text-wrapper">
+          <p class="font-subheading4">Premium surface quality</p>
+          <span class="number font-body3">02</span>
+        </div>
+      </div>
+      <div class="button-text" data-image="https://vold-independent.s3.ap-southeast-1.amazonaws.com/images/innovation/points/bc659bf1-ce24-4d9b-880b-81b46ffe295d/raw/point-3jpg.jpeg">
+        <div class="text-wrapper">
+          <p class="font-subheading4">Maximum fire resistance</p>
+          <span class="number font-body3">03</span>
+        </div>
+      </div>
+      <div class="button-text" data-image="https://vold-independent.s3.ap-southeast-1.amazonaws.com/images/innovation/points/851c7a11-8ea1-47e4-aba6-9720cb4bbdc7/raw/point-4jpg.jpeg">
+        <div class="text-wrapper">
+          <p class="font-subheading4">Highest wind resistance</p>
+          <span class="number font-body3">04</span>
+        </div>
+      </div>
+      <div class="button-text" data-image="https://vold-independent.s3.ap-southeast-1.amazonaws.com/images/innovation/points/a76a679a-c239-4778-a531-1e4c659ca3f9/raw/point-5jpg.jpeg">
+        <div class="text-wrapper">
+          <p class="font-subheading4">High seismic resistance</p>
+          <span class="number font-body3">05</span>
+        </div>
+      </div>
+      <div class="button-text" data-image="https://vold-independent.s3.ap-southeast-1.amazonaws.com/images/innovation/points/80151bce-be8a-4fcc-ae5c-8977c7a893c0/raw/point-6jpg.jpeg">
+        <div class="text-wrapper">
+          <p class="font-subheading4">Maximum moisture resistance</p>
+          <span class="number font-body3">06</span>
+        </div>
+      </div>
+      <div class="button-text" data-image="https://vold-independent.s3.ap-southeast-1.amazonaws.com/images/innovation/points/bf3965ee-d950-4340-9db4-eb602146e4ea/raw/point-7jpg.jpeg">
+        <div class="text-wrapper">
+          <p class="font-subheading4">Natural protection against harmful fungi</p>
+          <span class="number font-body3">07</span>
+        </div>
+      </div>
+      <div class="button-text" data-image="https://vold-independent.s3.ap-southeast-1.amazonaws.com/images/innovation/points/c42ec586-579a-44d8-bf3f-5b6dbeca0fed/raw/point-8jpg.jpeg">
+        <div class="text-wrapper">
+          <p class="font-subheading4">Eco and environmentally friendly</p>
+          <span class="number font-body3">08</span>
+        </div>
+      </div>
+      <div class="button-text" data-image="https://vold-independent.s3.ap-southeast-1.amazonaws.com/images/innovation/points/0b5ebe65-dfe6-4b34-8c09-a4a8d5294327/raw/point-9jpg.jpeg">
+        <div class="text-wrapper">
+          <p class="font-subheading4">Perfect finishing and aesthetics</p>
+          <span class="number font-body3">09</span>
+        </div>
+      </div>
+    </div>
+  
+    <!-- 하단 설명 (생략 가능) -->
+    <div class="bottomdesc">
+      <!-- 설명 내용 -->
+    </div>
+  </div>
+  
+  <script>
+    let currentIndex = 0;
+    const container = document.querySelector('.image-container');
+    let currentImg = document.getElementById('display-image');
+    
+    // 각 .button-text에 순번(data-index) 부여
+    document.querySelectorAll('.button-text').forEach((btn, index) => {
+      btn.dataset.index = index;
+    });
+    
+    document.querySelectorAll('.button-text').forEach(item => {
+      item.addEventListener('mouseenter', () => {
+        const newSrc = item.dataset.image;
+        const newIndex = parseInt(item.dataset.index);
+        if (!newSrc || newIndex === currentIndex) return;
+        
+        // 새 이미지 생성
+        const newImg = document.createElement('img');
+        newImg.src = newSrc;
+        newImg.style.position = 'absolute';
+        newImg.style.top = '0';
+        newImg.style.left = '0';
+        newImg.style.width = '100%';
+        newImg.style.height = '100%';
+        newImg.style.objectFit = 'cover';
+        
+        // 방향 결정: 오름차순이면 아래에서, 내림차순이면 위에서 시작
+        const startY = (newIndex > currentIndex) ? 100 : -100;
+        gsap.set(newImg, { yPercent: startY, opacity: 0 });
+        
+        container.appendChild(newImg);
+        
+        // 타임라인 생성: 새 이미지 페이드 및 슬라이드 인, 기존 이미지는 반대 방향으로 슬라이드 아웃 & 페이드 아웃
+        const tl = gsap.timeline({
+          onComplete: () => {
+            container.removeChild(currentImg);
+            newImg.id = 'display-image';
+            currentImg = newImg;
+            currentIndex = newIndex;
+          }
+        });
+        tl.to(newImg, { yPercent: 0, opacity: 1, duration: 0.8, ease: "sine.out" }, 0)
+          .to(currentImg, { yPercent: (newIndex > currentIndex) ? -100 : 100, opacity: 0, duration: 0.8, ease: "sine.out" }, 0);
+      });
+    });
+  </script>
+</body>
+</html>
